@@ -1,0 +1,73 @@
+# gate
+
+> gate is a PII-filtering CLI that transparently intercepts AI agent database query commands and redacts sensitive data before it reaches the model context.
+
+gate sits between your AI agent (Claude Code, Cursor, Copilot) and your database tools (psql, dbt, BigQuery CLI) or MCP servers. When the AI runs a query, gate intercepts the result, scans every value for PII, and returns a redacted version to the model. The AI can still reason about the data; it just never sees the raw personal information.
+
+## Install
+
+```
+cargo install gate-cli
+```
+
+## Connect to Claude Code
+
+```
+gate init
+```
+
+This registers gate as a Claude Code Bash hook. It is idempotent.
+
+## MCP proxy
+
+```
+gate mcp -- npx -y @modelcontextprotocol/server-postgres postgresql://...
+```
+
+Wrap any MCP server command with `gate mcp --` to proxy and redact its tool responses.
+
+## What gate detects
+
+- Email addresses
+- Phone numbers (international formats)
+- Full names (heuristic)
+- Credit card numbers (Luhn-validated)
+- NZ IRD numbers (checksum-validated)
+- NZ NHI numbers (check-character validated, old and new formats)
+- AU Tax File Numbers / TFN (checksum-validated)
+- AU Business Numbers / ABN (checksum-validated)
+- AU Medicare numbers (check-digit validated)
+- Passport numbers
+- Dates of birth
+- Custom patterns via gate.yaml
+
+## Two-layer detection
+
+Gate 1: parses the SQL query, marks sensitive column names before the query runs.
+Gate 2: scans every value in the result set with the full pattern library.
+
+Gate 2 false negatives are treated as worse than false positives — when in doubt, gate redacts.
+
+## Configuration
+
+Config lives at ~/.gate/gate.yaml. Example:
+
+```yaml
+enabled: true
+patterns:
+  - name: internal_account_id
+    regex: 'ACC-\d{8}'
+    label: account_id
+forced_columns:
+  - customer_id
+  - account_number
+```
+
+## AU/NZ Compliance Pack
+
+For regulated organisations in Australia and New Zealand, GZhu Limited offers a Compliance Pack: signed attestation, deployment runbook, and ongoing monitoring. See https://gate.gzhu.co.nz/au-nz-pack
+
+## Source
+
+MIT licensed. Source: https://github.com/garyzhu/gate
+Documentation: https://gate.gzhu.co.nz/docs

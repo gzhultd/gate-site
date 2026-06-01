@@ -1,0 +1,116 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="gate — PII redaction for AI agents"
+  description="gate intercepts AI agent database commands and redacts PII before query results reach the model context. Built for AU/NZ regulated organisations."
+>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-badge">v0.9.0 · MIT open source</div>
+      <h1>Stop AI agents from<br /><span>seeing your customers' data</span></h1>
+      <p>
+        gate transparently intercepts dbt, BigQuery, psql, and MCP tool calls —
+        redacting PII before query results ever reach the model context.
+        No query rewriting. No code changes. No data leaves your environment.
+      </p>
+      <div class="install-block">
+        <span class="prompt">$</span>
+        <code>cargo install gate-cli</code>
+      </div>
+      <div class="hero-ctas">
+        <a href="/docs" class="btn btn-primary">Read the docs</a>
+        <a href="https://github.com/garyzhu/gate" class="btn btn-secondary" target="_blank" rel="noopener">View on GitHub</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="steps">
+    <div class="container">
+      <h2>How it works</h2>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num">01 / INTERCEPT</div>
+          <h3>Hook into your AI agent</h3>
+          <p>
+            Run <code>gate init</code> once. gate registers as a Claude Code hook
+            and an MCP proxy — no changes to your queries or workflows.
+          </p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">02 / DETECT</div>
+          <h3>Two-layer PII detection</h3>
+          <p>
+            Gate 1 reads your SQL and marks sensitive columns before the query runs.
+            Gate 2 scans every result row with regex patterns covering names, emails,
+            phone numbers, IRD, NHI, TFN, ABN, Medicare, credit cards, and more.
+          </p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">03 / REDACT</div>
+          <h3>Redacted results reach the model</h3>
+          <p>
+            PII is replaced with typed placeholders like <code>[REDACTED:email]</code>.
+            The AI gets enough context to answer the question — not the raw data.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features">
+    <div class="container">
+      <h2>What gate covers</h2>
+      <div class="feature-grid">
+        <div class="feature-item">
+          <h3>SQL query tools</h3>
+          <p>dbt, BigQuery CLI, psql, MySQL, and any tool invoked via Claude Code's Bash hook.</p>
+        </div>
+        <div class="feature-item">
+          <h3>MCP server proxy</h3>
+          <p>Intercepts <code>tools/call</code> responses from any MCP server and redacts PII inline.</p>
+        </div>
+        <div class="feature-item">
+          <h3>AU/NZ compliance pack</h3>
+          <p>Built-in checksum-validated patterns for IRD, NHI, TFN, ABN, and Medicare numbers.</p>
+        </div>
+        <div class="feature-item">
+          <h3>JSONB &amp; nested data</h3>
+          <p>Recursively scans JSON values in columnar results — handles semi-structured data stores.</p>
+        </div>
+        <div class="feature-item">
+          <h3>Column-aware scanning</h3>
+          <p>Gate 1 parses your SQL to force-redact columns by name, even if the value looks clean.</p>
+        </div>
+        <div class="feature-item">
+          <h3>Schema scanner</h3>
+          <p>Run <code>gate scan</code> to classify every column in your database by PII tier before you connect.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AU/NZ Pack CTA -->
+  <section class="pack-cta">
+    <div class="container">
+      <div class="pack-card">
+        <div>
+          <div class="tag">AU / NZ Compliance Pack</div>
+          <h2>Built for FMA, Privacy Act, and APPs</h2>
+          <p>
+            gate ships production-ready detection for every regulated identifier in
+            Australia and New Zealand — IRD, NHI, TFN, ABN, Medicare — with
+            checksum validation to eliminate false positives.
+            The Compliance Pack adds signed attestation and a deployment runbook
+            for organisations that need to demonstrate due diligence.
+          </p>
+        </div>
+        <a href="/au-nz-pack" class="btn btn-primary">Learn more</a>
+      </div>
+    </div>
+  </section>
+</Layout>

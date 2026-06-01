@@ -1,0 +1,34 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+const posts = [
+  {
+    slug: 'scan-launch',
+    title: 'Introducing gate scan: know your PII exposure before the AI does',
+    date: '2026-06-02',
+    description: 'gate scan reads your database schema and classifies every column by PII tier — so you can configure redaction before you ever connect an AI agent to production data.',
+  },
+];
+---
+
+<Layout
+  title="Blog — gate"
+  description="Articles on AI agent data privacy, PII redaction, and AU/NZ compliance from the team behind gate."
+>
+  <section class="page-hero">
+    <div class="container">
+      <h1>Blog</h1>
+      <p>AI agent data privacy, PII detection, and AU/NZ compliance.</p>
+    </div>
+  </section>
+
+  <div class="container blog-list">
+    {posts.map(post => (
+      <article class="post-card">
+        <div class="post-meta">{post.date}</div>
+        <h3><a href={`/blog/${post.slug}`}>{post.title}</a></h3>
+        <p>{post.description}</p>
+      </article>
+    ))}
+  </div>
+</Layout>

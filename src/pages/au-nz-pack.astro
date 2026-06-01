@@ -1,0 +1,140 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="AU/NZ Compliance Pack — gate"
+  description="Signed attestation and deployment runbooks for gate's AU/NZ PII detection — covering IRD, NHI, TFN, ABN, and Medicare with checksum validation. For FMA, Privacy Act, and APPs compliance."
+>
+  <section class="page-hero">
+    <div class="container">
+      <div class="tag">AU / NZ Compliance Pack</div>
+      <h1>AI data governance for<br />regulated AU/NZ organisations</h1>
+      <p>
+        gate ships checksum-validated detection for every regulated identifier in
+        Australia and New Zealand. The Compliance Pack adds the attestation,
+        runbooks, and expert deployment that regulated organisations need to
+        demonstrate due diligence to FMA, OAIC, and internal audit.
+      </p>
+    </div>
+  </section>
+
+  <div class="container" style="padding-top: 3rem; padding-bottom: 4rem;">
+
+    <!-- Identifiers covered -->
+    <section style="margin-bottom: 3.5rem;">
+      <h2 style="font-size:1.5rem; font-weight:700; margin-bottom:1.5rem; letter-spacing:-0.4px;">What's detected</h2>
+      <p style="color:var(--text-muted); margin-bottom:1.5rem;">
+        Every AU/NZ identifier uses checksum or check-character validation — not just regex.
+        This eliminates false positives on numeric strings that happen to match a pattern.
+      </p>
+
+      <div class="feature-grid">
+        <div class="feature-item">
+          <h3>NZ IRD Number</h3>
+          <p>Weighted modulus-11 checksum. Covers both 8- and 9-digit formats.</p>
+        </div>
+        <div class="feature-item">
+          <h3>NZ NHI Number</h3>
+          <p>Check-character validation for both legacy (alpha) and new (numeric) NHI formats.</p>
+        </div>
+        <div class="feature-item">
+          <h3>AU Tax File Number (TFN)</h3>
+          <p>Weighted checksum validation. Handles formatting variants (spaces/hyphens).</p>
+        </div>
+        <div class="feature-item">
+          <h3>AU Business Number (ABN)</h3>
+          <p>Weighted modulus-89 checksum. Rejects the majority of false positives at the validation layer.</p>
+        </div>
+        <div class="feature-item">
+          <h3>AU Medicare Number</h3>
+          <p>Luhn-adjacent check digit validation with optional IRN suffix support.</p>
+        </div>
+        <div class="feature-item">
+          <h3>Standard PII (all regions)</h3>
+          <p>Email, phone, full name heuristics, credit card (Luhn), passport patterns, dates of birth.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- What the pack adds -->
+    <section style="margin-bottom: 3.5rem; padding-top: 3rem; border-top: 1px solid var(--border);">
+      <h2 style="font-size:1.5rem; font-weight:700; margin-bottom:1.5rem; letter-spacing:-0.4px;">What the Compliance Pack adds</h2>
+      <p style="color:var(--text-muted); margin-bottom:1.5rem;">
+        The open-source tool is free and contains all the detection logic.
+        The Compliance Pack is for organisations that need to evidence their controls
+        to a regulator, auditor, or board.
+      </p>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num">ASSESS</div>
+          <h3>AI data-flow risk assessment</h3>
+          <p>
+            We map every path where AI agents touch personal information in your environment
+            and classify risk by regulator (FMA, OAIC, Privacy Commissioner).
+          </p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">DEPLOY</div>
+          <h3>Deployment runbook</h3>
+          <p>
+            Environment-specific installation, configuration review, and forced-column
+            mapping for your schema. Tested against your actual query patterns.
+          </p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">ATTEST</div>
+          <h3>Signed certificate</h3>
+          <p>
+            GZhu Limited issues a signed attestation that gate is deployed and configured
+            correctly for your environment. Suitable for audit evidence and regulator queries.
+          </p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">RETAIN</div>
+          <h3>Ongoing monitoring</h3>
+          <p>
+            Quarterly review of patterns against regulatory updates, new AI tool integrations,
+            and schema changes. Certificate remains current.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Who it's for -->
+    <section style="margin-bottom: 3.5rem; padding-top: 3rem; border-top: 1px solid var(--border);">
+      <h2 style="font-size:1.5rem; font-weight:700; margin-bottom:1.5rem; letter-spacing:-0.4px;">Who it's for</h2>
+      <div class="feature-grid">
+        <div class="feature-item">
+          <h3>NZ financial services</h3>
+          <p>FMA-regulated firms using AI agents with customer data — wealth management, banking, insurance.</p>
+        </div>
+        <div class="feature-item">
+          <h3>AU regulated entities</h3>
+          <p>APPs-bound organisations under OAIC oversight — financial services, health, telco.</p>
+        </div>
+        <div class="feature-item">
+          <h3>Government agencies</h3>
+          <p>Central and local government adopting AI tooling with access to citizen records.</p>
+        </div>
+        <div class="feature-item">
+          <h3>Data-heavy tech companies</h3>
+          <p>Product teams using AI coding tools (Claude Code, Copilot, Cursor) against production databases.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section style="padding-top: 3rem; border-top: 1px solid var(--border); text-align: center;">
+      <h2 style="font-size:1.5rem; font-weight:700; margin-bottom:0.75rem;">Start with a conversation</h2>
+      <p style="color:var(--text-muted); max-width:520px; margin: 0 auto 2rem;">
+        The assessment takes one session. If gate isn't the right fit for your environment,
+        we'll tell you — the tool is open source and the first conversation is free.
+      </p>
+      <a href="https://www.gzhu.co.nz/contact.html" class="btn btn-primary" target="_blank" rel="noopener">
+        Talk to GZhu Limited
+      </a>
+    </section>
+  </div>
+</Layout>

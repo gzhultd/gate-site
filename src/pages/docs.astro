@@ -1,0 +1,114 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="Docs — gate"
+  description="How to install gate, configure PII detection, and connect it to Claude Code, MCP servers, and other AI agent tools."
+>
+  <div class="container">
+    <div class="docs-layout">
+      <!-- Sidebar nav -->
+      <nav class="docs-nav">
+        <h4>Getting started</h4>
+        <ul>
+          <li><a href="#install">Install</a></li>
+          <li><a href="#init">Connect to Claude Code</a></li>
+          <li><a href="#mcp">MCP proxy</a></li>
+          <li><a href="#scan">Scan your schema</a></li>
+        </ul>
+        <h4 style="margin-top:1.5rem">Configuration</h4>
+        <ul>
+          <li><a href="#config">gate.yaml</a></li>
+          <li><a href="#patterns">Custom patterns</a></li>
+          <li><a href="#columns">Forced columns</a></li>
+        </ul>
+        <h4 style="margin-top:1.5rem">Reference</h4>
+        <ul>
+          <li><a href="#how-pii-works">How PII detection works</a></li>
+          <li><a href="#au-nz">AU/NZ identifiers</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </nav>
+
+      <!-- Main content -->
+      <article class="docs-content">
+        <h1>Documentation</h1>
+        <p>gate is a PII-filtering CLI that transparently intercepts AI agent database query commands and redacts sensitive data before it reaches the model context. It requires no changes to your queries or application code.</p>
+
+        <h2 id="install">Install</h2>
+        <p>gate is distributed as a single Rust binary. Install via cargo:</p>
+        <pre>cargo install gate-cli</pre>
+        <p>Or download a pre-built binary from the <a href="https://github.com/garyzhu/gate/releases" style="color:var(--accent)">GitHub releases page</a>.</p>
+        <p>Verify the install:</p>
+        <pre>gate --version</pre>
+
+        <h2 id="init">Connect to Claude Code</h2>
+        <p>Run <code>gate init</code> once in your project (or globally). This registers gate as a Claude Code Bash hook so it intercepts every database command the AI tries to run.</p>
+        <pre>gate init</pre>
+        <p>gate writes an entry to <code>~/.claude/settings.json</code> atomically (write-then-rename). It is idempotent — running it twice is safe.</p>
+        <p>To remove the hook:</p>
+        <pre>gate uninstall</pre>
+
+        <h2 id="mcp">MCP proxy</h2>
+        <p>If your AI agent connects to databases through an MCP server, gate can proxy the connection and redact <code>tools/call</code> responses before they return to the harness.</p>
+        <pre>{`# In your MCP config, replace the upstream command with:
+gate mcp -- npx -y @modelcontextprotocol/server-postgres postgresql://...`}</pre>
+        <p>gate acts as a transparent stdio JSON-RPC proxy. All MCP messages pass through unchanged except tool results, which are scanned for PII.</p>
+
+        <h2 id="scan">Scan your schema</h2>
+        <p>Before connecting an AI agent to a new database, run <code>gate scan</code> to classify every column by PII tier:</p>
+        <pre>{`psql $DATABASE_URL -c "\\d+ tablename" | gate scan`}</pre>
+        <p>gate outputs a tiered report showing which columns carry high, medium, or low PII risk. Use this to configure forced-column redaction before the AI ever queries the data.</p>
+
+        <h2 id="config">gate.yaml</h2>
+        <p>gate looks for a config file at <code>~/.gate/gate.yaml</code> (or the path set by <code>GATE_CONFIG</code>). A minimal config:</p>
+        <pre>{`enabled: true
+patterns:
+  - name: custom_account_id
+    regex: 'ACC-\\d{8}'
+    label: account_id
+forced_columns:
+  - customer_id
+  - account_number
+  - tax_file_number`}</pre>
+
+        <h2 id="patterns">Custom patterns</h2>
+        <p>Add your own regex patterns under the <code>patterns</code> key. Each pattern needs a <code>name</code>, <code>regex</code>, and <code>label</code>. The label appears in redacted output as <code>[REDACTED:label]</code>.</p>
+        <p>Validate your config (compiles all patterns, reports errors) before the hook fires:</p>
+        <pre>gate validate</pre>
+
+        <h2 id="columns">Forced columns</h2>
+        <p>Columns in the <code>forced_columns</code> list are always redacted regardless of value. This is Gate 1 — it runs before the query executes by parsing the SQL. Use it for columns you know always carry PII even when values look clean (e.g. internal IDs that map to customers).</p>
+
+        <h2 id="how-pii-works">How PII detection works</h2>
+        <p>gate uses two independent layers:</p>
+        <ul>
+          <li><strong>Gate 1</strong> — parses the SQL query and marks columns by name. Best-effort; handles SELECT, JOIN, and subqueries. Column matches trigger redaction before results are returned.</li>
+          <li><strong>Gate 2</strong> — scans every value in the result set with a library of regex patterns. Runs regardless of Gate 1. Covers emails, phone numbers, credit card numbers, and all AU/NZ regulated identifiers.</li>
+        </ul>
+        <p>Gate 2 false negatives are treated as worse than false positives — when in doubt, gate redacts.</p>
+
+        <h2 id="au-nz">AU/NZ identifiers</h2>
+        <p>gate ships built-in, checksum-validated patterns for:</p>
+        <ul>
+          <li><strong>NZ IRD number</strong> — weighted checksum validation</li>
+          <li><strong>NZ NHI number</strong> — check-character validation (both old and new format)</li>
+          <li><strong>AU TFN</strong> — weighted checksum validation</li>
+          <li><strong>AU ABN</strong> — weighted checksum validation</li>
+          <li><strong>AU Medicare number</strong> — Luhn-adjacent checksum</li>
+        </ul>
+        <p>Checksum validation eliminates the false positives that plague pure-regex approaches for numeric identifiers.</p>
+        <p>See the <a href="/au-nz-pack" style="color:var(--accent)">AU/NZ Compliance Pack</a> for signed attestation and deployment runbooks.</p>
+
+        <h2 id="faq">FAQ</h2>
+        <h3>Does gate store or transmit my data?</h3>
+        <p>No. All processing is in-memory. gate never writes query results to disk and never transmits data externally. The source is MIT-licensed and auditable.</p>
+        <h3>What if gate redacts something it shouldn't?</h3>
+        <p>Use <code>gate scan</code> to review which patterns match your schema, then adjust <code>gate.yaml</code> to exclude specific patterns or columns. You can also run <code>gate disable</code> to pause redaction temporarily.</p>
+        <h3>Does gate slow down queries?</h3>
+        <p>The passthrough path (commands gate doesn't intercept) adds single-digit milliseconds. Redaction on intercepted commands adds proportionally to result size — typically &lt;50ms for standard query results.</p>
+      </article>
+    </div>
+  </div>
+</Layout>

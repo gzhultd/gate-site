@@ -1,0 +1,77 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  type?: 'website' | 'article';
+  publishedDate?: string;
+}
+
+const {
+  title,
+  description,
+  image = '/og-default.png',
+  type = 'website',
+  publishedDate,
+} = Astro.props;
+
+const siteUrl = 'https://gate.gzhu.co.nz';
+const canonicalURL = new URL(Astro.url.pathname, siteUrl);
+const ogImage = new URL(image, siteUrl);
+
+const jsonLd = type === 'website' ? {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'gate',
+  applicationCategory: 'DeveloperApplication',
+  operatingSystem: 'macOS, Linux, Windows',
+  description: 'PII-filtering CLI that intercepts AI agent database query commands and redacts sensitive data before it reaches the model context.',
+  url: siteUrl,
+  downloadUrl: 'https://github.com/garyzhu/gate/releases',
+  softwareVersion: '0.9.0',
+  author: {
+    '@type': 'Organization',
+    name: 'GZhu Limited',
+    url: 'https://www.gzhu.co.nz',
+  },
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD',
+    description: 'Free and open source (MIT)',
+  },
+  keywords: [
+    'PII redaction', 'AI agent data privacy', 'MCP proxy', 'database PII filter',
+    'AU NZ data governance', 'Claude Code privacy', 'LLM data security',
+  ],
+} : undefined;
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="canonical" href={canonicalURL} />
+
+<title>{title}</title>
+<meta name="description" content={description} />
+<meta name="author" content="GZhu Limited" />
+
+<!-- Open Graph -->
+<meta property="og:type" content={type} />
+<meta property="og:url" content={canonicalURL} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={ogImage} />
+<meta property="og:site_name" content="gate" />
+{publishedDate && <meta property="article:published_time" content={publishedDate} />}
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
+
+<!-- JSON-LD structured data -->
+{jsonLd && (
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd, null, 2)} />
+)}
