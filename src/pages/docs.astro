@@ -37,10 +37,11 @@ import Layout from '../layouts/Layout.astro';
         <p>gate is a PII-filtering CLI that transparently intercepts AI agent database query commands and redacts sensitive data before it reaches the model context. It requires no changes to your queries or application code.</p>
 
         <h2 id="install">Install</h2>
-        <p>gate is distributed as a single Rust binary. Install via cargo:</p>
-        <pre>cargo install gate-cli</pre>
-        <p>Or download a pre-built binary from the <a href="https://github.com/GaaraZhu/gate/releases" style="color:var(--accent)">GitHub releases page</a>.</p>
-        <p>Verify the install:</p>
+        <p>The recommended install is via Homebrew (macOS and Linux):</p>
+        <pre>brew tap GaaraZhu/gate && brew install gate</pre>
+        <p>Or install a prebuilt binary with cargo-binstall:</p>
+        <pre>cargo binstall gate</pre>
+        <p>Binaries are also on the <a href="https://github.com/GaaraZhu/gate/releases" style="color:var(--accent)">GitHub releases page</a>. Verify the install:</p>
         <pre>gate --version</pre>
 
         <h2 id="init">Install the hook</h2>

@@ -7,7 +7,7 @@ gate sits between your AI agent (Claude Code, Cursor, Copilot) and your database
 ## Install
 
 ```
-cargo install gate-cli
+brew tap GaaraZhu/gate && brew install gate
 ```
 
 ## Connect to Claude Code
@@ -39,7 +39,7 @@ Wrap any MCP server command with `gate mcp --` to proxy and redact its tool resp
 - AU Medicare numbers (check-digit validated)
 - Passport numbers
 - Dates of birth
-- Custom patterns via gate.yaml
+- Custom patterns via ~/.config/gate/config.yaml
 
 ## Two-layer detection
 
@@ -50,7 +50,7 @@ Gate 2 false negatives are treated as worse than false positives — when in dou
 
 ## Configuration
 
-Config lives at ~/.gate/gate.yaml. Example:
+Config lives at ~/.config/gate/config.yaml. Example:
 
 ```yaml
 enabled: true

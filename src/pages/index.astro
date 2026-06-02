@@ -18,7 +18,7 @@ import Layout from '../layouts/Layout.astro';
       </p>
       <div class="install-block">
         <span class="prompt">$</span>
-        <code>cargo install gate-cli</code>
+        <code>brew tap GaaraZhu/gate && brew install gate</code>
       </div>
       <div class="hero-ctas">
         <a href="/docs" class="btn btn-primary">Read the docs</a>
@@ -36,8 +36,8 @@ import Layout from '../layouts/Layout.astro';
           <div class="step-num">01 / INTERCEPT</div>
           <h3>Hook into your AI agent</h3>
           <p>
-            Run <code>gate init</code> once. gate registers as a Claude Code hook
-            and an MCP proxy — no changes to your queries or workflows.
+            Run <code>gate init</code> once. gate registers as a Claude Code hook —
+            no changes to your queries or workflows. MCP wrapping is opt-in via <code>--wrap-mcp</code>.
           </p>
         </div>
         <div class="step-card">

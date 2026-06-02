@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#0d1117"/>
+  <rect x="0" y="0" width="1200" height="4" fill="#58a6ff"/>
+
+  <!-- gate wordmark -->
+  <text x="80" y="160" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="96" font-weight="700" fill="#58a6ff" letter-spacing="-2">gate</text>
+
+  <!-- tagline -->
+  <text x="80" y="240" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="36" fill="#e6edf3">PII redaction for AI agents</text>
+
+  <!-- sub-line -->
+  <text x="80" y="300" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="24" fill="#8b949e">Intercept · Detect · Redact — before data reaches the model</text>
+
+  <!-- install pill -->
+  <rect x="80" y="360" width="560" height="72" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+  <text x="112" y="404" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="24" fill="#3fb950">$</text>
+  <text x="148" y="404" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="24" fill="#e6edf3">brew install gate</text>
+
+  <!-- badges -->
+  <rect x="80" y="476" width="100" height="36" rx="18" fill="rgba(88,166,255,0.1)" stroke="rgba(88,166,255,0.3)" stroke-width="1"/>
+  <text x="130" y="499" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="14" fill="#58a6ff" text-anchor="middle">MIT</text>
+
+  <rect x="196" y="476" width="120" height="36" rx="18" fill="rgba(88,166,255,0.1)" stroke="rgba(88,166,255,0.3)" stroke-width="1"/>
+  <text x="256" y="499" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="14" fill="#58a6ff" text-anchor="middle">v0.9.0</text>
+
+  <rect x="332" y="476" width="100" height="36" rx="18" fill="rgba(88,166,255,0.1)" stroke="rgba(88,166,255,0.3)" stroke-width="1"/>
+  <text x="382" y="499" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="14" fill="#58a6ff" text-anchor="middle">Rust</text>
+
+  <!-- domain -->
+  <text x="80" y="580" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="22" fill="#8b949e">gate.gzhu.co.nz</text>
+
+  <!-- right side decorative block -->
+  <rect x="800" y="120" width="320" height="400" rx="12" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+  <text x="828" y="168" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="14" fill="#3fb950">$ psql ... | gate scan</text>
+  <line x1="800" y1="184" x2="1120" y2="184" stroke="#30363d" stroke-width="1"/>
+  <text x="828" y="216" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" fill="#8b949e">PII exposure: ████████░░  71.9%</text>
+  <text x="828" y="248" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" fill="#f85149">Risk: CRITICAL</text>
+  <text x="828" y="296" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" fill="#8b949e">Government IDs    14 cols</text>
+  <text x="828" y="324" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" fill="#8b949e">Financial          8 cols</text>
+  <text x="828" y="352" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" fill="#8b949e">Health &amp; medical   7 cols</text>
+  <text x="828" y="380" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" fill="#8b949e">Contact           13 cols</text>
+  <text x="828" y="408" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" fill="#8b949e">Names             13 cols</text>
+  <line x1="800" y1="432" x2="1120" y2="432" stroke="#30363d" stroke-width="1"/>
+  <text x="828" y="464" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" fill="#58a6ff">→ [REDACTED:ird_number]</text>
+  <text x="828" y="492" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13" fill="#58a6ff">→ [REDACTED:email]</text>
+</svg>

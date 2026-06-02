@@ -50,29 +50,46 @@ import Layout from '../../layouts/Layout.astro';
     FROM information_schema.columns
     WHERE table_schema = 'customers'" | gate scan
 
-gate scan — PII exposure report
-════════════════════════════════
+Gate PII Scan
+══════════════════════════════════════════════════════════════════
 
- Government IDs (3 columns)
-   customers.ird_number
-   customers.nhi_number
-   employees.tax_file_number
+  Tables scanned        6
+  Columns scanned       44
 
- Financial (5 columns)
-   accounts.credit_card_number
-   accounts.bank_account
-   transactions.account_number
-   payments.card_last_four
-   billing.iban
+  PII exposure:  ████████████░░░░░░░░░░░░  51.3%  Risk: CRITICAL
 
- Contact (8 columns)
-   customers.email
-   customers.phone_mobile
-   ...
+Detected Categories
+──────────────────────────────────────────────────────────────────
+  Category                     Columns     Share      Sensitivity
+──────────────────────────────────────────────────────────────────
+  Government IDs               3           13.6%      critical
+  Financial                    5           22.7%      critical
+  Contact                      8           36.4%      elevated
+  Names                        4           18.2%      elevated
+  Date of birth                2           9.1%       elevated
+──────────────────────────────────────────────────────────────────
 
-────────────────────────────────
- 16 PII-exposed columns across 6 tables
- Run with --verbose to see all matches`}</pre>
+Top Findings
+──────────────────────────────────────────────────────────────────
+  Government IDs                    3 column(s)
+    customers.ird_number, customers.nhi_number, employees.tax_file_number
+
+  Financial                         5 column(s)
+    accounts.credit_card_number, accounts.bank_account, payments.iban
+    ... and 2 more
+
+  Contact                           8 column(s)
+    customers.email, customers.phone_mobile, customers.phone
+    ... and 5 more
+──────────────────────────────────────────────────────────────────
+
+Note
+  Scan detects PII by column name only. Gate 2 also
+  catches values in text/JSON columns at query time.
+
+Hint
+  Use --verbose to show all detected columns
+  Use --review to interactively mark false positives`}</pre>
 
       <h2>Classifying by category, not just flag/no-flag</h2>
       <p>
