@@ -18,7 +18,13 @@ import Layout from '../layouts/Layout.astro';
       </p>
       <div class="install-block">
         <span class="prompt">$</span>
-        <code>brew tap GaaraZhu/gate && brew install gate</code>
+        <code id="install-cmd">brew tap GaaraZhu/gate && brew install gate</code>
+        <button id="copy-btn" class="copy-btn" title="Copy command" aria-label="Copy install command">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="2" y="2" width="10" height="10" rx="1"/>
+            <path d="M12 4v10H4"/>
+          </svg>
+        </button>
       </div>
       <div class="hero-ctas">
         <a href="/docs" class="btn btn-primary">Read the docs</a>
@@ -114,3 +120,20 @@ import Layout from '../layouts/Layout.astro';
     </div>
   </section>
 </Layout>
+
+<script>
+  const copyBtn = document.getElementById('copy-btn');
+  const installCmd = document.getElementById('install-cmd');
+
+  if (copyBtn && installCmd) {
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(installCmd.textContent);
+        copyBtn.classList.add('copied');
+        setTimeout(() => copyBtn.classList.remove('copied'), 2000);
+      } catch (err) {
+        console.error('Failed to copy:', err);
+      }
+    });
+  }
+</script>

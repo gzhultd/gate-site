@@ -131,7 +131,22 @@ body {
 }
 
 .install-block .prompt { color: var(--accent-green); }
-.install-block code { color: var(--text); }
+.install-block code { color: var(--text); flex: 1; }
+
+.copy-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s;
+}
+
+.copy-btn:hover { color: var(--accent); }
+.copy-btn.copied { color: var(--accent-green); }
 
 .hero-ctas {
   display: flex;
