@@ -21,7 +21,7 @@
   <text x="130" y="499" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="14" fill="#58a6ff" text-anchor="middle">MIT</text>
 
   <rect x="196" y="476" width="120" height="36" rx="18" fill="rgba(88,166,255,0.1)" stroke="rgba(88,166,255,0.3)" stroke-width="1"/>
-  <text x="256" y="499" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="14" fill="#58a6ff" text-anchor="middle">v0.9.0</text>
+  <text x="256" y="499" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="14" fill="#58a6ff" text-anchor="middle">v0.9.2</text>
 
   <rect x="332" y="476" width="100" height="36" rx="18" fill="rgba(88,166,255,0.1)" stroke="rgba(88,166,255,0.3)" stroke-width="1"/>
   <text x="382" y="499" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="14" fill="#58a6ff" text-anchor="middle">Rust</text>
