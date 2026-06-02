@@ -13,13 +13,13 @@ import Layout from '../layouts/Layout.astro';
         <h4>Getting started</h4>
         <ul>
           <li><a href="#install">Install</a></li>
-          <li><a href="#init">Connect to Claude Code</a></li>
+          <li><a href="#init">Install the hook</a></li>
           <li><a href="#mcp">MCP proxy</a></li>
           <li><a href="#scan">Scan your schema</a></li>
         </ul>
         <h4 style="margin-top:1.5rem">Configuration</h4>
         <ul>
-          <li><a href="#config">gate.yaml</a></li>
+          <li><a href="#config">Configuration</a></li>
           <li><a href="#patterns">Custom patterns</a></li>
           <li><a href="#columns">Forced columns</a></li>
         </ul>
@@ -39,30 +39,63 @@ import Layout from '../layouts/Layout.astro';
         <h2 id="install">Install</h2>
         <p>gate is distributed as a single Rust binary. Install via cargo:</p>
         <pre>cargo install gate-cli</pre>
-        <p>Or download a pre-built binary from the <a href="https://github.com/garyzhu/gate/releases" style="color:var(--accent)">GitHub releases page</a>.</p>
+        <p>Or download a pre-built binary from the <a href="https://github.com/GaaraZhu/gate/releases" style="color:var(--accent)">GitHub releases page</a>.</p>
         <p>Verify the install:</p>
         <pre>gate --version</pre>
 
-        <h2 id="init">Connect to Claude Code</h2>
-        <p>Run <code>gate init</code> once in your project (or globally). This registers gate as a Claude Code Bash hook so it intercepts every database command the AI tries to run.</p>
-        <pre>gate init</pre>
-        <p>gate writes an entry to <code>~/.claude/settings.json</code> atomically (write-then-rename). It is idempotent — running it twice is safe.</p>
-        <p>To remove the hook:</p>
+        <h2 id="init">Install the hook</h2>
+        <p><code>gate init</code> registers the gate hook in your AI harness settings. It only installs the hook — it does not create a gate config file. Run it once; it is idempotent.</p>
+        <pre>{`# Claude Code (default)
+gate init
+
+# Other supported harnesses
+gate init --harness opencode
+gate init --harness cursor
+gate init --harness copilot-cli
+gate init --harness codex
+gate init --harness gemini`}</pre>
+        <p>By default the hook is installed globally (user scope). Use <code>--scope project</code> to install it into the current project only.</p>
+        <pre>gate init --scope project</pre>
+        <p>After installing the hook, run <code>gate config</code> to create and edit your gate config file (patterns, tools to intercept, forced columns).</p>
+        <p>To remove the hook, config, and any gate-generated plugin files:</p>
         <pre>gate uninstall</pre>
 
         <h2 id="mcp">MCP proxy</h2>
-        <p>If your AI agent connects to databases through an MCP server, gate can proxy the connection and redact <code>tools/call</code> responses before they return to the harness.</p>
-        <pre>{`# In your MCP config, replace the upstream command with:
-gate mcp -- npx -y @modelcontextprotocol/server-postgres postgresql://...`}</pre>
-        <p>gate acts as a transparent stdio JSON-RPC proxy. All MCP messages pass through unchanged except tool results, which are scanned for PII.</p>
+        <p>gate can intercept MCP server traffic and redact <code>tools/call</code> responses before they reach the harness. There are three ways to set this up:</p>
+        <h3>Wrap all existing MCP servers at once</h3>
+        <p>If your harness config already has MCP servers configured, gate can rewrite them all in one step. This is a dry-run by default:</p>
+        <pre>{`# Preview what would change
+gate init --wrap-mcp
+
+# Apply the changes
+gate init --wrap-mcp --yes
+
+# Wrap specific servers only
+gate init --wrap-mcp --servers postgres,bigquery --yes`}</pre>
+        <h3>Register a new MCP server via gate</h3>
+        <pre>{`gate init --mcp postgres --mcp-cmd "uvx mcp-server-postgres postgresql://..."`}</pre>
+        <p>This writes the server into your harness MCP config routed through <code>gate mcp</code>.</p>
+        <h3>Run the proxy directly</h3>
+        <p>You can also invoke the proxy manually or test it outside the harness:</p>
+        <pre>gate mcp -- uvx mcp-server-postgres postgresql://...</pre>
+        <p>gate acts as a transparent stdio JSON-RPC proxy. All MCP messages pass through unchanged except tool results, which are scanned and redacted.</p>
 
         <h2 id="scan">Scan your schema</h2>
-        <p>Before connecting an AI agent to a new database, run <code>gate scan</code> to classify every column by PII tier:</p>
-        <pre>{`psql $DATABASE_URL -c "\\d+ tablename" | gate scan`}</pre>
-        <p>gate outputs a tiered report showing which columns carry high, medium, or low PII risk. Use this to configure forced-column redaction before the AI ever queries the data.</p>
+        <p>Before connecting an AI agent to a database, run <code>gate scan</code> to classify every column by PII tier. It reads columnar schema JSON from stdin — pipe the output of any schema query into it:</p>
+        <pre>{`# Example with a Databricks query tool
+tkdbr query --sql "SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE
+  FROM information_schema.columns
+  WHERE table_schema = 'mydb'" | gate scan`}</pre>
+        <p>gate prints a tiered report (high / medium / low PII risk) and optionally lets you mark false positives to add to the allowlist interactively:</p>
+        <pre>... | gate scan --review</pre>
 
-        <h2 id="config">gate.yaml</h2>
-        <p>gate looks for a config file at <code>~/.gate/gate.yaml</code> (or the path set by <code>GATE_CONFIG</code>). A minimal config:</p>
+        <h2 id="config">Configuration</h2>
+        <p>Run <code>gate config</code> to create and open the gate config file in your editor. To just create a starter config without opening an editor:</p>
+        <pre>gate config --init-only</pre>
+        <p>To see the resolved config path or print the raw contents:</p>
+        <pre>{`gate config --path
+gate config --print`}</pre>
+        <p>A minimal config:</p>
         <pre>{`enabled: true
 patterns:
   - name: custom_account_id
@@ -75,11 +108,15 @@ forced_columns:
 
         <h2 id="patterns">Custom patterns</h2>
         <p>Add your own regex patterns under the <code>patterns</code> key. Each pattern needs a <code>name</code>, <code>regex</code>, and <code>label</code>. The label appears in redacted output as <code>[REDACTED:label]</code>.</p>
-        <p>Validate your config (compiles all patterns, reports errors) before the hook fires:</p>
+        <p>Validate your config (compiles all patterns, reports errors) without running the hook:</p>
         <pre>gate validate</pre>
 
         <h2 id="columns">Forced columns</h2>
         <p>Columns in the <code>forced_columns</code> list are always redacted regardless of value. This is Gate 1 — it runs before the query executes by parsing the SQL. Use it for columns you know always carry PII even when values look clean (e.g. internal IDs that map to customers).</p>
+        <p>You can also manage an allowlist — columns that skip name-based redaction (value-based checks still apply):</p>
+        <pre>{`gate allowlist add non_sensitive_id
+gate allowlist list
+gate allowlist remove non_sensitive_id`}</pre>
 
         <h2 id="how-pii-works">How PII detection works</h2>
         <p>gate uses two independent layers:</p>
@@ -105,9 +142,11 @@ forced_columns:
         <h3>Does gate store or transmit my data?</h3>
         <p>No. All processing is in-memory. gate never writes query results to disk and never transmits data externally. The source is MIT-licensed and auditable.</p>
         <h3>What if gate redacts something it shouldn't?</h3>
-        <p>Use <code>gate scan</code> to review which patterns match your schema, then adjust <code>gate.yaml</code> to exclude specific patterns or columns. You can also run <code>gate disable</code> to pause redaction temporarily.</p>
+        <p>Run <code>gate scan --review</code> to interactively mark false-positive columns and add them to the allowlist. You can also run <code>gate disable</code> to pause redaction temporarily.</p>
         <h3>Does gate slow down queries?</h3>
         <p>The passthrough path (commands gate doesn't intercept) adds single-digit milliseconds. Redaction on intercepted commands adds proportionally to result size — typically &lt;50ms for standard query results.</p>
+        <h3>How do I see what gate has protected?</h3>
+        <p>Run <code>gate retro</code> for a protection retrospective — total queries intercepted, PII fields redacted, and a breakdown by tool.</p>
       </article>
     </div>
   </div>

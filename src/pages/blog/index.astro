@@ -3,10 +3,11 @@ import Layout from '../../layouts/Layout.astro';
 
 const posts = [
   {
-    slug: 'scan-launch',
-    title: 'Introducing gate scan: know your PII exposure before the AI does',
-    date: '2026-06-02',
-    description: 'gate scan reads your database schema and classifies every column by PII tier — so you can configure redaction before you ever connect an AI agent to production data.',
+    href: 'https://gaarazhu.github.io/introducing-gate/',
+    title: 'gate: a deterministic PII boundary between your data and AI agents',
+    date: '2026',
+    description: 'The original introduction to gate — the problem it solves, the two-layer detection pipeline, why deterministic regex beats LLM-based redaction, and how it integrates with Claude Code, Cursor, Copilot, and MCP servers.',
+    external: true,
   },
 ];
 ---
@@ -26,7 +27,15 @@ const posts = [
     {posts.map(post => (
       <article class="post-card">
         <div class="post-meta">{post.date}</div>
-        <h3><a href={`/blog/${post.slug}`}>{post.title}</a></h3>
+        <h3>
+          <a
+            href={post.href}
+            target={post.external ? '_blank' : undefined}
+            rel={post.external ? 'noopener' : undefined}
+          >
+            {post.title}{post.external ? ' ↗' : ''}
+          </a>
+        </h3>
         <p>{post.description}</p>
       </article>
     ))}

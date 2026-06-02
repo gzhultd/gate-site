@@ -1,0 +1,156 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout
+  title="Introducing gate scan: know your PII exposure before the AI does — gate blog"
+  description="gate scan reads your database schema and classifies every column by PII tier — so you can configure redaction before you ever connect an AI agent to production data."
+  type="article"
+  publishedDate="2026-06-02"
+>
+  <div class="container" style="max-width: 720px; padding-top: 3rem; padding-bottom: 5rem;">
+    <div class="post-meta" style="font-size:0.85rem; margin-bottom: 1.5rem;">2026-06-02</div>
+    <h1 style="font-size: 2.2rem; font-weight: 800; line-height: 1.15; letter-spacing: -0.5px; margin-bottom: 1.25rem;">
+      Introducing gate scan: know your PII exposure before the AI does
+    </h1>
+    <p style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 3rem; border-bottom: 1px solid var(--border); padding-bottom: 2rem;">
+      gate scan reads your database schema and classifies every column by PII tier —
+      so you can configure redaction before you ever connect an AI agent to production data.
+    </p>
+
+    <div class="docs-content">
+      <p>
+        When you connect an AI agent to a production database, you're making a decision about
+        what personal information the model can see. Most teams don't make that decision
+        deliberately — they find out after the fact, when the model quotes a customer's IRD number
+        in a code comment, or includes a Medicare number in a query explanation.
+      </p>
+      <p>
+        gate's job is to intercept that data before it reaches the model. But interception
+        works best when you know what you're dealing with up front. That's what
+        <code>gate scan</code> is for.
+      </p>
+
+      <h2>What gate scan does</h2>
+      <p>
+        <code>gate scan</code> reads columnar schema JSON from stdin — the output of any
+        query against your database's <code>information_schema</code> — and classifies
+        every column name by PII tier using the same detection logic gate applies at
+        query time.
+      </p>
+      <p>
+        The output is a tiered report: columns grouped by PII category (Government IDs,
+        Financial, Health &amp; medical, Contact, and so on), with a summary of total
+        exposure across your schema.
+      </p>
+      <p>
+        Here's what it looks like in practice:
+      </p>
+      <pre>{`$ tkdbr query --sql "SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE
+    FROM information_schema.columns
+    WHERE table_schema = 'customers'" | gate scan
+
+gate scan — PII exposure report
+════════════════════════════════
+
+ Government IDs (3 columns)
+   customers.ird_number
+   customers.nhi_number
+   employees.tax_file_number
+
+ Financial (5 columns)
+   accounts.credit_card_number
+   accounts.bank_account
+   transactions.account_number
+   payments.card_last_four
+   billing.iban
+
+ Contact (8 columns)
+   customers.email
+   customers.phone_mobile
+   ...
+
+────────────────────────────────
+ 16 PII-exposed columns across 6 tables
+ Run with --verbose to see all matches`}</pre>
+
+      <h2>Classifying by category, not just flag/no-flag</h2>
+      <p>
+        Not all PII carries the same regulatory weight. An email address and a NHI number
+        both warrant redaction, but they sit in different parts of the NZ Privacy Act and
+        the Australian Privacy Principles. A flat "PII / not PII" classification doesn't
+        give you enough signal to prioritise your configuration work.
+      </p>
+      <p>
+        gate scan groups columns into 13 Tier 1 categories — Names, Demographics,
+        Government IDs, Contact, Date of birth, Location of birth, Address &amp; location,
+        Financial, Employment, Health &amp; medical, Online &amp; technical, Biometric,
+        and Family &amp; relationships. This maps directly onto the categories regulators
+        care about, so you can read the report and immediately know which tables to
+        configure forced-column redaction for first.
+      </p>
+
+      <h2>Reviewing false positives inline</h2>
+      <p>
+        Column name heuristics aren't perfect. A column called <code>account_number</code>
+        might be an internal product identifier that carries no PII. Running
+        <code>gate scan --review</code> lets you walk through every detected column and
+        mark false positives to add to the allowlist:
+      </p>
+      <pre>{`$ ... | gate scan --review
+
+ Financial (5 columns)
+   accounts.credit_card_number  ← keep
+   accounts.account_number      ← is this a false positive? [y/N]`}</pre>
+      <p>
+        Columns you mark as false positives are added to the gate allowlist. They'll still
+        be checked by Gate 2 value-based patterns (so if an actual credit card number ends
+        up in that column, it still gets redacted) — but they won't trigger forced redaction
+        on column name alone.
+      </p>
+
+      <h2>Why do this before connecting the AI?</h2>
+      <p>
+        gate's two-layer detection — Gate 1 (column names) and Gate 2 (value patterns) —
+        runs at query time. You don't need to pre-configure anything for it to work.
+        But there's a class of column that Gate 2 can miss: internal identifiers that
+        look like random integers but map to customers in another system. Gate 1's
+        forced-column list is the right tool for those, and you can only build that list
+        if you know which columns exist.
+      </p>
+      <p>
+        Running <code>gate scan</code> before you start an AI-assisted data project means
+        you enter the session with a configuration that's tuned to your schema — not one
+        that learns from whatever the model happens to encounter first.
+      </p>
+
+      <h2>AU/NZ schemas get extra coverage</h2>
+      <p>
+        gate scan uses the same pattern library as Gate 2 for column classification,
+        which includes AU/NZ-specific categories: IRD numbers, NHI numbers, TFNs, ABNs,
+        and Medicare numbers each map to their own Tier 1 category under Government IDs
+        and Health &amp; medical. If your schema has columns named <code>ird_number</code>,
+        <code>nhi</code>, <code>tfn</code>, or anything similar, they'll surface in the
+        scan report with the right regulatory label.
+      </p>
+
+      <h2>Try it</h2>
+      <pre>{`# Install
+cargo install gate-cli
+
+# Run the hook installer
+gate init
+
+# Scan your schema
+tkdbr query --sql "SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE
+  FROM information_schema.columns
+  WHERE table_schema = 'your_schema'" | gate scan`}</pre>
+      <p>
+        The source is on <a href="https://github.com/GaaraZhu/gate" style="color:var(--accent)">GitHub</a>.
+        If you're in a regulated AU/NZ environment and want signed attestation alongside
+        the tool, the <a href="/au-nz-pack" style="color:var(--accent)">Compliance Pack</a> is
+        where to start.
+      </p>
+    </div>
+  </div>
+</Layout>

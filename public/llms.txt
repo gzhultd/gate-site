@@ -69,5 +69,5 @@ For regulated organisations in Australia and New Zealand, GZhu Limited offers a 
 
 ## Source
 
-MIT licensed. Source: https://github.com/garyzhu/gate
+MIT licensed. Source: https://github.com/GaaraZhu/gate
 Documentation: https://gate.gzhu.co.nz/docs
