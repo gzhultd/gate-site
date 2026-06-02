@@ -1,0 +1,109 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="How gate detection works — gate"
+  description="Deterministic PII detection through rules, not models. Learn what gate catches, documented gaps, and why rules-based redaction prioritizes reproducibility and data locality."
+  type="website"
+>
+  <div class="container" style="max-width: 720px; padding-top: 3rem; padding-bottom: 5rem;">
+    <h1 style="font-size: 2.2rem; font-weight: 800; line-height: 1.15; letter-spacing: -0.5px; margin-bottom: 1.25rem;">
+      How gate detection works
+    </h1>
+    <p style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 3rem; border-bottom: 1px solid var(--border); padding-bottom: 2rem;">
+      Deterministic PII detection through rules, not models. Learn what gate catches, the documented gaps, and why this approach prioritizes reproducibility and data locality.
+    </p>
+
+    <div class="docs-content">
+      <h2>The two-layer detection pipeline</h2>
+      <p>
+        gate uses a deterministic, rules-based approach: regex patterns, column name heuristics, and checksums
+        (like Luhn validation). Every redaction decision is traceable to an explicit rule, and detection happens
+        entirely on-device.
+      </p>
+
+      <h3>Layer 1: SQL parsing</h3>
+      <p>
+        The first layer parses SQL queries to extract column names and flag those matching PII heuristics for
+        forced redaction. This layer operates on column names alone and is best-effort: wildcards, aliases, and
+        complex nested queries receive fallback coverage rather than perfect accuracy.
+      </p>
+
+      <h3>Layer 2: Value-level detection</h3>
+      <p>
+        Once query results come back, gate applies three checks:
+      </p>
+      <ul>
+        <li><strong>Forced-column redaction:</strong> columns marked in Layer 1 are redacted unconditionally.</li>
+        <li><strong>Column name tokenization:</strong> every column name is checked against ~50 PII categories (Government IDs, Financial, Contact, Health &amp; medical, etc.).</li>
+        <li><strong>Value patterns:</strong> regex and checksum validation (Luhn, ISBN, etc.) on the actual data.</li>
+      </ul>
+
+      <h2>Why rules, not a model?</h2>
+      <p>
+        gate uses deterministic rules instead of LLM-based detection because:
+      </p>
+      <ul>
+        <li><strong>Locality:</strong> no data leaves the machine; detection is 100% local.</li>
+        <li><strong>Reproducibility:</strong> the same input always produces the same redaction. No variance across model versions or API changes.</li>
+        <li><strong>Speed:</strong> sub-10ms latency per query — fast enough for real-time interactive use.</li>
+        <li><strong>Auditability:</strong> every redaction decision traces back to a specific rule, pattern, or heuristic that your team can review and tune.</li>
+      </ul>
+      <p>
+        The trade-off: rules can't catch PII in unstructured free-text prose. A language model might infer that
+        "my eldest son, born in 1993, went to MIT" is biometric + education PII; a regex can't. For environments
+        where <em>control and reproducibility matter more than coverage</em>, this is the right choice.
+      </p>
+
+      <h2>Documented detection gaps</h2>
+      <p>
+        gate is explicit about what it doesn't catch. Understanding these gaps is essential to configuring gate
+        correctly for your schema:
+      </p>
+
+      <h3>Non-adversarial threat model only</h3>
+      <p>
+        gate protects against <em>inadvertent</em> PII leakage when an AI agent queries your database and includes
+        sensitive data in its response. It does <strong>not</strong> protect against:
+      </p>
+      <ul>
+        <li><strong>Prompt injection attacks:</strong> an agent maliciously instructed to bypass or disable redaction.</li>
+        <li><strong>Compromised infrastructure:</strong> a malicious human operator on the machine running gate.</li>
+        <li><strong>Pre-existing context:</strong> PII already embedded in system prompts, conversation history, or earlier turns.</li>
+      </ul>
+
+      <h3>Format-specific bypasses</h3>
+      <ul>
+        <li><strong>Stripped formatting:</strong> SSN `123456789` (no dashes) is not matched by the SSN regex.</li>
+        <li><strong>Regional variation:</strong> non-US phone formats often evade detection; AU/NZ formats are explicitly handled, but international numbers vary.</li>
+        <li><strong>Encoding:</strong> base64 or URL-encoded PII passes through undetected.</li>
+      </ul>
+
+      <h3>Data format gaps</h3>
+      <ul>
+        <li><strong>Unstructured prose:</strong> free-text columns containing narrative PII are not redacted (Layer 2 can catch values, but natural-language context-dependence requires a language model).</li>
+        <li><strong>Non-JSON output:</strong> CSV, plain-text, or binary results bypass JSON-specific redaction.</li>
+        <li><strong>MCP resource reads:</strong> gate does not intercept MCP tool use (resource reads or prompt messages), only SQL query interception.</li>
+      </ul>
+
+      <h2>Configuring for your schema</h2>
+      <p>
+        These gaps are why <code>gate scan</code> exists. Running it before connecting an AI agent to production gives you
+        a report of which columns gate detects by name alone, and which you should manually mark for forced redaction.
+      </p>
+      <p>
+        The single highest-leverage configuration is <code>wildcard_policy: reject</code>: it prevents queries like
+        <code>SELECT *</code> from returning unscanned data, forcing agents to name columns explicitly and allowing
+        gate to apply both Layer 1 and Layer 2 detection.
+      </p>
+
+      <h2>Further reading</h2>
+      <p>
+        For a full threat model analysis, including detailed examples and edge cases, see the
+        <a href="https://github.com/GaaraZhu/gate/blob/main/THREAT-MODEL.md" style="color:var(--accent)">THREAT-MODEL.md</a>
+        in the gate repository.
+      </p>
+    </div>
+  </div>
+</Layout>
