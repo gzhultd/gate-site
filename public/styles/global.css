@@ -331,6 +331,7 @@ p code, li code {
   border-top: 1px solid var(--border);
   padding: 2.5rem 0;
   margin-top: 4rem;
+  text-align: center;
 }
 
 .site-footer p { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; }
