@@ -21,7 +21,7 @@ import Layout from '../layouts/Layout.astro';
         <ul>
           <li><a href="#config">Configuration</a></li>
           <li><a href="#patterns">Custom patterns</a></li>
-          <li><a href="#columns">Forced columns</a></li>
+          <li><a href="#columns">Column redaction policy</a></li>
         </ul>
         <h4 style="margin-top:1.5rem">Reference</h4>
         <ul>
@@ -102,22 +102,25 @@ patterns:
   - name: custom_account_id
     regex: 'ACC-\\d{8}'
     label: account_id
-forced_columns:
-  - customer_id
-  - account_number
-  - tax_file_number`}</pre>
+pii:
+  column_denylist:
+    - customer_id
+    - account_number
+    - tax_file_number`}</pre>
 
         <h2 id="patterns">Custom patterns</h2>
         <p>Add your own regex patterns under the <code>patterns</code> key. Each pattern needs a <code>name</code>, <code>regex</code>, and <code>label</code>. The label appears in redacted output as <code>[REDACTED:label]</code>.</p>
         <p>Validate your config (compiles all patterns, reports errors) without running the hook:</p>
         <pre>gate validate</pre>
 
-        <h2 id="columns">Forced columns</h2>
-        <p>Columns in the <code>forced_columns</code> list are always redacted regardless of value. This is Gate 1 — it runs before the query executes by parsing the SQL. Use it for columns you know always carry PII even when values look clean (e.g. internal IDs that map to customers).</p>
-        <p>You can also manage an allowlist — columns that skip name-based redaction (value-based checks still apply):</p>
-        <pre>{`gate allowlist add non_sensitive_id
-gate allowlist list
-gate allowlist remove non_sensitive_id`}</pre>
+        <h2 id="columns">Column redaction policy</h2>
+        <p>Use <code>column_denylist</code> under <code>pii</code> to force certain columns to always be redacted, regardless of value. This is Gate 1 — it runs before the query executes by parsing the SQL. Use it for columns you know always carry PII even when values look clean (e.g. internal IDs that map to customers).</p>
+        <p>Use <code>column_allowlist</code> to skip name-based redaction for specific columns (value-based checks still apply):</p>
+        <pre>{`pii:
+  column_allowlist:
+    - non_sensitive_id
+  column_denylist:
+    - customer_id`}</pre>
 
         <h2 id="how-pii-works">How PII detection works</h2>
         <p>gate uses two independent layers:</p>
